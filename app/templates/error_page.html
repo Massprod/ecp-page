@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>
+        {% if lang == 'ru' %}
+        Ошибка
+        {% else %}
+        Error
+        {% endif %}
+    </title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .container {
+            margin-top: 50px;
+        }
+        .error-message {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="error-message">
+            {% if lang == 'ru' %}
+            Ошибка {{ error_code}}
+            {% else %}
+            Error {{ error_code }}
+            {% endif %}
+        </h1>
+        <p>{{ message }}</p>
+    </div>
+</body>
+</html>

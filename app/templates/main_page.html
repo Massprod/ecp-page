@@ -1,0 +1,204 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>{{ document_data.document_name }}</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/main_page.css') }}" rel="stylesheet" type="text/css">
+</head>
+<body>
+    <div class="container-fluid mt-4">
+        <h1 class="section-title mb-4">{{ document_data.document_name }}</h1>
+        <div class="row mb-3">
+            <div class="col-12 col-md-12">
+                <div class="table-responsive-sm">
+                    <table class="table table-hover">
+                        <tbody>
+                            <tr>
+                                <th class="fixed-width-th">Номер документа:</th>
+                                <td>{{ document_data.document_number }}</td>
+                            </tr>
+                            <tr>
+                                <th>Дата регистрации:</th>
+                                <td>{{ document_data.registration_date }}</td>
+                            </tr>
+                            <tr>
+                                <th>Зарегистрировал:</th>
+                                <td>{{ document_data.registered_by }}</td>
+                            </tr>
+                            {% if document_data.prepared_by != '' %}
+                            <tr>
+                                <th>Подготовил:</th>
+                                <td>{{ document_data.prepared_by }}</td>
+                            </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        {% if approvement_data %}
+        <details>
+            <summary>
+                <h2 class="section-title">Таблица согласования</h2>
+            </summary>
+            <div class="row mb-3">
+                <div class="col-12 col-md-12">
+                    <div class="table-responsive-lg table-scrollable">
+                        <table class="table table-bordered table-hover">
+                            <thead class="thead-light sticky-top">
+                                <tr>
+                                    <th>Должность</th>
+                                    <th>Ф. И. О</th>
+                                    <th>Дата</th>
+                                    <th>Согласовано</th>
+                                    <th>Комментарий</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for index, person in approvement_data.items() %}
+                                {% if person.name == "" %}
+                                <tr class="not-approved">
+                                    <td>{{ person.get("role", "На согласовании") }}</td>
+                                    {% for _ in range(3) %}
+                                    <td>{{ "На согласовании" }}</td>
+                                    {% endfor %}
+                                    <td>{{ person.comment }}</td>
+                                {% else %}
+                                <tr class="approved">
+                                    <td>{{ person.role }}</td>
+                                    <td>{{ person.name }}</td>
+                                    <td>{{ person.sign_date }}</td>
+                                    <td>{{ person.approvement_mark}}</td>
+                                    <td>{{ person.comment }}</td>
+                                {% endif %}
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </details>
+        {% endif %}
+
+        {% if attached_files %}
+        <details>
+            <summary>
+                <h2 class="section-title">Прикреплённые файлы</h2>
+            </summary>
+            <div class="row mb-3">
+                <div class="col-12 col-md-12">
+                    <div class="table-responsive-lg table-scrollable">
+                        <table class="table table-bordered table-hover">
+                            <thead class="thead-light sticky-top">
+                                <tr>
+                                    <th>Прикреплённый файл</th>
+                                    <th>Дата подписи</th>
+                                    <th>Установивший подпись</th>
+                                    <th>Прикрепивший файл</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for file, file_data in attached_files.items() %}
+                                <tr>
+                                    <td>{{ file_data.name }}</td>
+                                    <td>{{ file_data.sign_date }}</td>
+                                    <td>{{ file_data.signed_by }}</td>
+                                    <td>{{ file_data.attached_by }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </details>
+        {% endif %}
+
+        {% if sign_data %}
+        <details>
+            <summary>
+                <h2 class="section-title"><img src="{{ url_for('static', filename='images/approved.png') }}" alt="Approved stamp">   Подписано электронно</h2>
+            </summary>
+            <div class="row mb-3">
+                <div class="col-12 col-md-12">
+                    <div class="table-responsive-sm">
+                        <table class="table table-bordered table-hover">
+                            <tbody>
+                                <tr>
+                                    <th class="fixed-width-th">Дата подписания:</th>
+                                    <td>{{ sign_data.sign_date }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Установивший подпись:</th>
+                                    <td>{{ sign_data.signed_by }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <details>
+                <summary>
+                    <h2 class="section-title">Информация об электронной подписи</h2>
+                </summary>
+                <div class="row mb-3">
+                    <div class="col-12 col-md-12">
+                        <div class="table-responsive-sm">
+                            <table class="table table-bordered table-hover">
+                                <tbody>
+                                    <tr>
+                                        <th class="fixed-width-th">Дата начала действия:</th>
+                                        <td>{{ sign_data.start_time }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Дата окончания действия:</th>
+                                        <td>{{ sign_data.end_time }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Кем выдана:</th>
+                                        <td>{{ sign_data.provider }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Кому выдана:</th>
+                                        <td>{{ sign_data.receiver }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Открытый ключ:</th>
+                                        <td>{{ sign_data.open_key }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </details>
+        </details>
+        {% endif %}
+
+        {% if qr_data %}
+        <div class="row mb-3">
+            <div class="col-6 col-md-6 col-sm-12">
+                <img src="data:image/png;base64,{{ qr_data.qr_binary }}" alt="QR Code" class="img-fluid border">
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-6 col-md-6 col-sm-12 d-flex">
+                <p>
+                    <a href="{{ qr_data.qr_link }}" target="_blank">
+                        Для более подробной информации о документе перейдите в 1C.
+                    </a>
+                </p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,106 @@
+
+.table-hover tbody tr:hover {
+    background-color: #f2f2f2;
+}
+
+.section-title {
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.section-title img {
+    font-size: 2.5rem;
+    height: 2.5rem;
+    vertical-align: middle;
+}
+
+.table-bordered th, .table-bordered td {
+    vertical-align: middle;
+    white-space: normal; /* Ensure text wraps */
+    word-wrap: break-word; /* Break long words if necessary */
+}
+
+.table thead th {
+    background-color: #f8f9fa;
+}
+
+.fixed-width-th {
+    width: auto;
+}
+
+.table-scrollable {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+@media (max-width: 575.98px) {
+    .table-responsive-sm {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    .table-responsive-sm > .table-bordered {
+        border: 0;
+    }
+    .section-title {
+        font-size: 1.5rem;
+    }
+
+    .table th, .table td {
+        font-size: 0.875rem;
+        white-space: normal;
+        word-wrap: break-word;
+    }
+    .fixed-width-th {
+        width: auto;
+    }
+}
+
+/* For screens wider than 1000px */
+@media (min-width: 1000px) {
+    .fixed-width-th {
+        width: 25%;
+    }
+}
+
+/* For screens between 800px and 1000px */
+@media (max-width: 999px) and (min-width: 800px) {
+    .fixed-width-th {
+        width: 45%;
+    }
+}
+
+/* For screens between 600px and 800px */
+@media (max-width: 799px) and (min-width: 600px) {
+    .fixed-width-th {
+        width: 50%;
+    }
+}
+
+/* For screens between 400px and 600px */
+@media (max-width: 599px) and (min-width: 400px) {
+    .fixed-width-th {
+        width: 55%;
+    }
+}
+
+/* For screens smaller than 400px */
+@media (max-width: 399px) {
+    .fixed-width-th {
+        width: 65%;
+    }
+}
+
+.sticky-top {
+    top: -0.5px;
+}
+
+.not-approved {
+    background-color: #faf6f6;
+}
+
+.approved {
+    background-color: #f5f8f4;
+}
