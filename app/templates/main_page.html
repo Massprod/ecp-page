@@ -102,13 +102,49 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for file, file_data in attached_files.items() %}
-                                <tr>
+                                {% for file_data in attached_files %}
+                                {% set collapse_id = 'file_col_' ~ loop.index0 %}
+                                <tr class="file-row" data-toggle="collapse" data-target="#{{ collapse_id }}" aria-expanded="false" aria-controls="{{ collapse_id }}" style="cursor: pointer;">
                                     <td>{{ file_data.name }}</td>
                                     <td>{{ file_data.sign_date }}</td>
                                     <td>{{ file_data.signed_by }}</td>
                                     <td>{{ file_data.attached_by }}</td>
                                 </tr>
+                                {% if file_data.sign_data %}
+                                <tr id="{{ collapse_id }}" class="collapse">
+                                    <td colspan="4">
+                                            <div class="p-2 bg-light">
+                                                <div class="table-responsive-sm">
+                                                    <table class="table table-bordered table-hover mb-0">
+                                                        <tbody>
+                                                            <tr><td colspan="4">🗒️ <b>Данные установленной подписи</b></td></tr>
+                                                            <tr>
+                                                                <th class="fixed-width-th">Дата начала действия:</th>
+                                                                <td>{{ file_data.sign_data.start_time }}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th class="fixed-width-th">Дата окончания действия:</th>
+                                                                <td>{{ file_data.sign_data.end_time }}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th class="fixed-width-th">Кем выдана:</th>
+                                                                <td>{{ file_data.sign_data.provider }}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th class="fixed-width-th">Кому выдана:</th>
+                                                                <td>{{ file_data.sign_data.receiver }}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th class="fixed-width-th">Открытый ключ:</th>
+                                                                <td>{{ file_data.sign_data.open_key }}</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                    </td>
+                                </tr>
+                                {% endif %}
                                 {% endfor %}
                             </tbody>
                         </table>
@@ -118,64 +154,67 @@
         </details>
         {% endif %}
 
-        {% if sign_data %}
+        {% if signs_data %}
         <details>
             <summary>
-                <h2 class="section-title"><img src="{{ url_for('static', filename='images/approved.png') }}" alt="Approved stamp">   Подписано электронно</h2>
+                <h2 class="section-title"><img src="{{ url_for('static', filename='images/approved.png') }}" alt="Approved stamp"> Подписано электронно</h2>
             </summary>
             <div class="row mb-3">
                 <div class="col-12 col-md-12">
                     <div class="table-responsive-sm">
                         <table class="table table-bordered table-hover">
+                             <thead class="thead-light sticky-top">
+                                <tr>
+                                    <th>Дата подписания</th>
+                                    <th>Установивший подпись</th>
+                                </tr>
+                            </thead>
                             <tbody>
-                                <tr>
-                                    <th class="fixed-width-th">Дата подписания:</th>
-                                    <td>{{ sign_data.sign_date }}</td>
+                                {% for sign in signs_data %}
+                                {% set collapse_id = 'sign_col' ~loop.index0 %}
+                                <tr class="sign-row" data-toggle="collapse" data-target="#{{ collapse_id }}" aria-expanded="false" aria-controls="{{ collapse_id }}" style="cursor: pointer;">
+                                    <td>{{ sign.sign_date }}</td>
+                                    <td>{{ sign.signed_by }}</td>
                                 </tr>
-                                <tr>
-                                    <th>Установивший подпись:</th>
-                                    <td>{{ sign_data.signed_by }}</td>
+                                <tr id="{{ collapse_id }}" class="collapse">
+                                    <td colspan="4">
+                                            <div class="p-2 bg-light">
+                                                <div class="table-responsive-sm">
+                                                    <table class="table table-bordered table-hover mb-0">
+                                                        <tbody>
+                                                            <tr><td colspan="4">🗒️ <b>Данные установленной подписи</b></td></tr>
+                                                            <tr>
+                                                                <th class="fixed-width-th">Дата начала действия:</th>
+                                                                <td>{{ sign.start_time }}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th class="fixed-width-th">Дата окончания действия:</th>
+                                                                <td>{{ sign.end_time }}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th class="fixed-width-th">Кем выдана:</th>
+                                                                <td>{{ sign.provider }}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th class="fixed-width-th">Кому выдана:</th>
+                                                                <td>{{ sign.receiver }}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th class="fixed-width-th">Открытый ключ:</th>
+                                                                <td>{{ sign.open_key }}</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                    </td>
                                 </tr>
+                                {% endfor %}
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
-            <details>
-                <summary>
-                    <h2 class="section-title">Информация об электронной подписи</h2>
-                </summary>
-                <div class="row mb-3">
-                    <div class="col-12 col-md-12">
-                        <div class="table-responsive-sm">
-                            <table class="table table-bordered table-hover">
-                                <tbody>
-                                    <tr>
-                                        <th class="fixed-width-th">Дата начала действия:</th>
-                                        <td>{{ sign_data.start_time }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Дата окончания действия:</th>
-                                        <td>{{ sign_data.end_time }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Кем выдана:</th>
-                                        <td>{{ sign_data.provider }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Кому выдана:</th>
-                                        <td>{{ sign_data.receiver }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Открытый ключ:</th>
-                                        <td>{{ sign_data.open_key }}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </details>
         </details>
         {% endif %}
 
@@ -197,7 +236,7 @@
         {% endif %}
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>

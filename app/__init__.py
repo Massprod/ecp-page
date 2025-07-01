@@ -100,6 +100,20 @@ class CustomError(Exception):
         self.error_code = error_code
 
 
+def gather_sign_data(sign_data: dict, placeholder: str = 'N/A') -> dict:
+    data: dict[str, str] = {
+        'signed_by': sign_data.get('УстановившийПодпись', placeholder),
+        'sign_date': sign_data.get('ДатаПодписи', placeholder),
+        'start_time': sign_data.get('ДатаНачала', placeholder),
+        'end_time': sign_data.get('ДатаОкончания', placeholder),
+        'provider': sign_data.get('КемВыдан', placeholder),
+        'receiver': sign_data.get('КомуВыдан', placeholder),
+        'open_key': sign_data.get('ОткрытыйКлюч', placeholder),
+    }
+
+    return data
+
+
 def get_user_language():
     lang = inc_req.headers.get('Accept-Language', 'en').split(',')[0]
     return lang
@@ -154,12 +168,10 @@ def get_doc():
         status_code = request.status_code
         message = get_error_messages(status_code, preferred_language)
         raise CustomError(status_code, message, preferred_language, status_code)
-    request_data = request.json()
+    request_data: dict = request.json()
     app.logger.info(f"RESPONSE_DATA: {request_data}")
-    for key, value in request_data.items():
-        print(key, value)
     data = {}
-    # Если не основных данных о документе => значит он был не найден. Что изначально 404.
+    # Если нет основных данных о документе => значит он был не найден => 404.
     document_data = {
         'document_name': request_data['ДанныеДокумента']['Наименование'],
         'document_number': request_data['ДанныеДокумента']['НомерДокумента'],
@@ -170,28 +182,29 @@ def get_doc():
     # Если не будет какого-либо из пунктов, мы можем отрендерить пустую страницу.
     # Поэтому добавляю эти кринж проверки.
     data['document_data'] = document_data
-    if 'ДанныеПодписи' in request_data:
-        open_key: str = request_data['ДанныеПодписи']['ОткрытыйКлюч']
-        sign_data = {
-            "signed_by": request_data['ДанныеПодписи']["УстановившийПодпись"],
-            "sign_date": request_data["ДанныеПодписи"]["ДатаПодписи"],
-            "start_time": request_data['ДанныеПодписи']["ДатаНачала"],
-            "end_time": request_data['ДанныеПодписи']['ДатаОкончания'],
-            "provider": request_data['ДанныеПодписи']['КемВыдан'],
-            "receiver": request_data['ДанныеПодписи']['КомуВыдан'],
-            "open_key": open_key,
+    # +TEST+
+    # Меняем на `ДанныеПодписей`: Отображаем разложение для каждой подписи.
+    # if request_data.get('ДанныеФайлов'):
+    placeholder: str = 'Нет Данных'
+
+    data['signs_data'] = []
+    signs_data: dict[str, dict] = request_data.get('ДанныеПодписей', {})
+    for sign in signs_data.values():
+        sign_data: dict = gather_sign_data(sign, placeholder=placeholder)
+        data['signs_data'].append(sign_data)
+    data['attached_files'] = []
+    files_data: dict[str, dict] = request_data.get('ДанныеФайлов', {})
+    for file in files_data.values():
+        file_data: dict[str, str | dict] = {
+            'name': file.get('ПрикреплённыйФайл', placeholder),
+            'sign_date': file.get('ДатаПодписи', placeholder),
+            'signed_by': file.get('УстановившийПодпись', placeholder),
+            'attached_by': file.get('ПрикрепившийФайл', placeholder),
+            'sign_data': gather_sign_data(
+                file.get('ДанныеПодписи', {}), placeholder=placeholder
+            ),
         }
-        data['sign_data'] = sign_data
-    if 'ДанныеФайлов' in request_data:
-        data['attached_files'] = {}
-        for file, file_data in request_data['ДанныеФайлов'].items():
-            cor_file_data = {
-                'name': file_data['ПрикреплённыйФайл'],
-                'sign_date': file_data['ДатаПодписи'],
-                'signed_by': file_data['УстановившийПодпись'],
-                'attached_by': file_data['ПрикрепившийФайл'],
-            }
-            data['attached_files'][file] = cor_file_data
+        data['attached_files'].append(file_data)
     if 'ДанныеВизСогласования' in request_data:
         data['approvement_data'] = {}
         for index, person in enumerate(request_data['ДанныеВизСогласования']):
