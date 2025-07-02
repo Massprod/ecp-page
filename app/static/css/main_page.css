@@ -30,7 +30,7 @@
 }
 
 .table-scrollable {
-    max-height: 300px;
+    max-height: 60rem;
     overflow-y: auto;
 }
 

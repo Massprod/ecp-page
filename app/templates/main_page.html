@@ -38,186 +38,226 @@
                 </div>
             </div>
         </div>
-
-        {% if approvement_data %}
         <details>
-            <summary>
-                <h2 class="section-title">Таблица согласования</h2>
+            <summary style="font-size: 1.1rem;" class="mt-2 mb-3 fs-6">
+                <b>Подробности о документе</b>
             </summary>
-            <div class="row mb-3">
-                <div class="col-12 col-md-12">
-                    <div class="table-responsive-lg table-scrollable">
-                        <table class="table table-bordered table-hover">
-                            <thead class="thead-light sticky-top">
-                                <tr>
-                                    <th>Должность</th>
-                                    <th>Ф. И. О</th>
-                                    <th>Дата</th>
-                                    <th>Согласовано</th>
-                                    <th>Комментарий</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for index, person in approvement_data.items() %}
-                                {% if person.name == "" %}
-                                <tr class="not-approved">
-                                    <td>{{ person.get("role", "На согласовании") }}</td>
-                                    {% for _ in range(3) %}
-                                    <td>{{ "На согласовании" }}</td>
-                                    {% endfor %}
-                                    <td>{{ person.comment }}</td>
-                                {% else %}
-                                <tr class="approved">
-                                    <td>{{ person.role }}</td>
-                                    <td>{{ person.name }}</td>
-                                    <td>{{ person.sign_date }}</td>
-                                    <td>{{ person.approvement_mark}}</td>
-                                    <td>{{ person.comment }}</td>
-                                {% endif %}
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+            <ul class="nav nav-tabs mb-4" id="navtabs" role="tablist">
+                {% if approvement_data %}
+                <li>
+                    <a class="nav-link" id="approval-tab" data-toggle="tab" href="#approval-info" role="tab">
+                        Согласование
+                    </a>
+                </li>
+                {% endif %}
+                {% if attached_files %}
+                <li>
+                    <a class="nav-link" id="files-tab" data-toggle="tab" href="#files-info" role="tab">
+                        Файлы
+                    </a>
+                </li>
+                {% endif %}
+                {% if signs_data %}
+                <li>
+                    <a class="nav-link active" id="signs-tab" data-toggle="tab" href="#signs-info" role="tab">
+                        Подписи
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+            <div class="tab-content">
+                {% if approvement_data %}
+                <div class="tab-pane fade show" id="approval-info" role="tabpanel">
+                    <div class="row mb-3">
+                        <div class="col-12 col-md-12">
+                            <div class="table-responsive-lg table-scrollable">
+                                <table class="table table-bordered table-hover">
+                                    <thead class="thead-light sticky-top">
+                                        <tr>
+                                            <th>Должность</th>
+                                            <th>Ф. И. О</th>
+                                            <th>Дата</th>
+                                            <th>Согласовано</th>
+                                            <th>Комментарий</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for index, person in approvement_data.items() %}
+                                        {% if person.name == "" %}
+                                        <tr class="not-approved">
+                                            <td>{{ person.get("role", "На согласовании") }}</td>
+                                            {% for _ in range(3) %}
+                                            <td>{{ "На согласовании" }}</td>
+                                            {% endfor %}
+                                            <td>{{ person.comment }}</td>
+                                        {% else %}
+                                        <tr class="approved">
+                                            <td>{{ person.role }}</td>
+                                            <td>{{ person.name }}</td>
+                                            <td>{{ person.sign_date }}</td>
+                                            <td>{{ person.approvement_mark}}</td>
+                                            <td>{{ person.comment }}</td>
+                                        {% endif %}
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </details>
-        {% endif %}
-
-        {% if attached_files %}
-        <details>
-            <summary>
-                <h2 class="section-title">Прикреплённые файлы</h2>
-            </summary>
-            <div class="row mb-3">
-                <div class="col-12 col-md-12">
-                    <div class="table-responsive-lg table-scrollable">
-                        <table class="table table-bordered table-hover">
-                            <thead class="thead-light sticky-top">
-                                <tr>
-                                    <th>Прикреплённый файл</th>
-                                    <th>Дата подписи</th>
-                                    <th>Установивший подпись</th>
-                                    <th>Прикрепивший файл</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for file_data in attached_files %}
-                                {% set collapse_id = 'file_col_' ~ loop.index0 %}
-                                <tr class="file-row" data-toggle="collapse" data-target="#{{ collapse_id }}" aria-expanded="false" aria-controls="{{ collapse_id }}" style="cursor: pointer;">
-                                    <td>{{ file_data.name }}</td>
-                                    <td>{{ file_data.sign_date }}</td>
-                                    <td>{{ file_data.signed_by }}</td>
-                                    <td>{{ file_data.attached_by }}</td>
-                                </tr>
-                                {% if file_data.sign_data %}
-                                <tr id="{{ collapse_id }}" class="collapse">
-                                    <td colspan="4">
-                                            <div class="p-2 bg-light">
-                                                <div class="table-responsive-sm">
-                                                    <table class="table table-bordered table-hover mb-0">
-                                                        <tbody>
-                                                            <tr><td colspan="4">🗒️ <b>Данные установленной подписи</b></td></tr>
-                                                            <tr>
-                                                                <th class="fixed-width-th">Дата начала действия:</th>
-                                                                <td>{{ file_data.sign_data.start_time }}</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <th class="fixed-width-th">Дата окончания действия:</th>
-                                                                <td>{{ file_data.sign_data.end_time }}</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <th class="fixed-width-th">Кем выдана:</th>
-                                                                <td>{{ file_data.sign_data.provider }}</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <th class="fixed-width-th">Кому выдана:</th>
-                                                                <td>{{ file_data.sign_data.receiver }}</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <th class="fixed-width-th">Открытый ключ:</th>
-                                                                <td>{{ file_data.sign_data.open_key }}</td>
-                                                            </tr>
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                    </td>
-                                </tr>
-                                {% endif %}
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                {% endif %}
+                {% if attached_files %}
+                <div class="tab-pane fade show" id="files-info" role="tabpanel">
+                    <div class="row mb-3">
+                        <div class="col-12 col-md-12">
+                            <div class="table-responsive-lg table-scrollable">
+                                <table class="table table-bordered table-hover">
+                                    <thead class="thead-light sticky-top">
+                                        <tr>
+                                            <th>Прикреплённый файл</th>
+                                            <th>Прикрепивший файл</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for file_data in attached_files %}
+                                            {% set collapse_files = 'file_col_' ~ loop.index0 %}
+                                            <tr class="file-row" data-toggle="collapse" data-target="#{{ collapse_files }}" aria-expanded="false" aria-controls="{{ collapse_files }}" style="cursor: pointer;">
+                                                <td>{{ file_data.name }}</td>
+                                                <td>{{ file_data.attached_by }}</td>
+                                            </tr>    
+                                            {% if file_data.signs_data %}
+                                            <tr id="{{ collapse_files }}" class="collapse">
+                                                <td colspan="2">
+                                                    <div class="p-1 bg-light">
+                                                        <div class="table-responsive-lg">
+                                                            <table class="table table-bordered table-hover m-0">
+                                                                <thead class="thead-light sticky-top">
+                                                                    <tr>
+                                                                        <th>Автор подписи</th>
+                                                                        <th>Дата подписи</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    {% for sign_data in file_data.signs_data%}
+                                                                    {% set collapse_file_sign = 'f_sign_col_' ~loop.index0 %}
+                                                                    <tr class="file-sign-row" data-toggle="collapse" data-target="#{{ collapse_file_sign }}" aria-expanded="false" aria-controls="{{ collapse_file_sign }}" style="cursor: pointer;">
+                                                                        <td>{{ sign_data.signed_by }}</td>
+                                                                        <td>{{ sign_data.sign_date }}</td>
+                                                                    </tr>
+                                                                    <tr id="{{ collapse_file_sign }}" class="collapse">
+                                                                        <td colspan="2">
+                                                                            <div class="p-2 bg-light">
+                                                                                <div class="table-responsive-sm">
+                                                                                    <table class="table table-bordered table-hover mb-0">
+                                                                                        <tbody>
+                                                                                            <tr><td colspan="2">🗒️ <b>Данные установленной подписи</b></td></tr>
+                                                                                            <tr>
+                                                                                                <th class="fixed-width-th">Дата начала действия:</th>
+                                                                                                <td>{{ sign_data.start_time }}</td>
+                                                                                            </tr>
+                                                                                            <tr>
+                                                                                                <th class="fixed-width-th">Дата окончания действия:</th>
+                                                                                                <td>{{ sign_data.end_time }}</td>
+                                                                                            </tr>
+                                                                                            <tr>
+                                                                                                <th class="fixed-width-th">Кем выдана:</th>
+                                                                                                <td>{{ sign_data.provider }}</td>
+                                                                                            </tr>
+                                                                                            <tr>
+                                                                                                <th class="fixed-width-th">Кому выдана:</th>
+                                                                                                <td>{{ sign_data.receiver }}</td>
+                                                                                            </tr>
+                                                                                            <tr>
+                                                                                                <th class="fixed-width-th">Открытый ключ:</th>
+                                                                                                <td>{{ sign_data.open_key }}</td>
+                                                                                            </tr>
+                                                                                        </tbody>
+                                                                                    </table>
+                                                                                </div>
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                    {% endfor %}
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </details>
-        {% endif %}
+                {% endif %}
 
-        {% if signs_data %}
-        <details>
-            <summary>
-                <h2 class="section-title"><img src="{{ url_for('static', filename='images/approved.png') }}" alt="Approved stamp"> Подписано электронно</h2>
-            </summary>
-            <div class="row mb-3">
-                <div class="col-12 col-md-12">
-                    <div class="table-responsive-sm">
-                        <table class="table table-bordered table-hover">
-                             <thead class="thead-light sticky-top">
-                                <tr>
-                                    <th>Дата подписания</th>
-                                    <th>Установивший подпись</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for sign in signs_data %}
-                                {% set collapse_id = 'sign_col' ~loop.index0 %}
-                                <tr class="sign-row" data-toggle="collapse" data-target="#{{ collapse_id }}" aria-expanded="false" aria-controls="{{ collapse_id }}" style="cursor: pointer;">
-                                    <td>{{ sign.sign_date }}</td>
-                                    <td>{{ sign.signed_by }}</td>
-                                </tr>
-                                <tr id="{{ collapse_id }}" class="collapse">
-                                    <td colspan="4">
-                                            <div class="p-2 bg-light">
-                                                <div class="table-responsive-sm">
-                                                    <table class="table table-bordered table-hover mb-0">
-                                                        <tbody>
-                                                            <tr><td colspan="4">🗒️ <b>Данные установленной подписи</b></td></tr>
-                                                            <tr>
-                                                                <th class="fixed-width-th">Дата начала действия:</th>
-                                                                <td>{{ sign.start_time }}</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <th class="fixed-width-th">Дата окончания действия:</th>
-                                                                <td>{{ sign.end_time }}</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <th class="fixed-width-th">Кем выдана:</th>
-                                                                <td>{{ sign.provider }}</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <th class="fixed-width-th">Кому выдана:</th>
-                                                                <td>{{ sign.receiver }}</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <th class="fixed-width-th">Открытый ключ:</th>
-                                                                <td>{{ sign.open_key }}</td>
-                                                            </tr>
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                {% if signs_data %}
+                <div class="tab-pane fade show active" id="signs-info" role="tabpanel">
+                    <div class="row mb-3">
+                        <div class="col-12 col-md-12">
+                            <div class="table-responsive-lg table-scrollable">
+                                <table class="table table-bordered table-hover">
+                                    <thead class="thead-light sticky-top">
+                                        <tr>
+                                            <th>Дата подписания</th>
+                                            <th>Установивший подпись</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for sign in signs_data %}
+                                        {% set collapse_id = 'sign_col' ~loop.index0 %}
+                                        <tr class="sign-row" data-toggle="collapse" data-target="#{{ collapse_id }}" aria-expanded="false" aria-controls="{{ collapse_id }}" style="cursor: pointer;">
+                                            <td>{{ sign.sign_date }}</td>
+                                            <td>{{ sign.signed_by }}</td>
+                                        </tr>
+                                        <tr id="{{ collapse_id }}" class="collapse">
+                                            <td colspan="4">
+                                                    <div class="p-2 bg-light">
+                                                        <div class="table-responsive-sm">
+                                                            <table class="table table-bordered table-hover mb-0">
+                                                                <tbody>
+                                                                    <tr><td colspan="4">🗒️ <b>Данные установленной подписи</b></td></tr>
+                                                                    <tr>
+                                                                        <th class="fixed-width-th">Дата начала действия:</th>
+                                                                        <td>{{ sign.start_time }}</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <th class="fixed-width-th">Дата окончания действия:</th>
+                                                                        <td>{{ sign.end_time }}</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <th class="fixed-width-th">Кем выдана:</th>
+                                                                        <td>{{ sign.provider }}</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <th class="fixed-width-th">Кому выдана:</th>
+                                                                        <td>{{ sign.receiver }}</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <th class="fixed-width-th">Открытый ключ:</th>
+                                                                        <td>{{ sign.open_key }}</td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
+                {% endif %}
             </div>
         </details>
-        {% endif %}
-
+        <hr>
         {% if qr_data %}
         <div class="row mb-3">
             <div class="col-6 col-md-6 col-sm-12">

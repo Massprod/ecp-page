@@ -52,12 +52,12 @@ def log_response_info(response):
 #endregion Logs
 
 #region ServiceCon
-req_api_dom: str = os.getenv('API_DOM')
-req_api_name: str = os.getenv('API_NAME')
+req_api_dom: str = os.getenv('API_DOM', '')
+req_api_name: str = os.getenv('API_NAME', '')
 req_base_url: str = f'{req_api_dom}/{req_api_name}'
 
-service_login: str = os.getenv('SYS_LOGIN')
-service_pass: str = os.getenv('SYS_PASS')
+service_login: str = os.getenv('SYS_LOGIN', '')
+service_pass: str = os.getenv('SYS_PASS', '')
 
 app.logger.info(f'ENV_SETUP\n' \
                 f'API_DOM = {req_api_dom}\n' \
@@ -159,7 +159,7 @@ def get_doc():
     app.logger.error(f'REQUEST_URL = {full_req_url}')
     try:
         request = out_req('GET', full_req_url, headers=basic_headers, verify=False)
-    except ConnectionError as error:
+    except ConnectionError as _:
         app.logger.error('Connection error', exc_info=True)
         status_code = 500
         message = get_error_messages(status_code, preferred_language)
@@ -195,16 +195,16 @@ def get_doc():
     data['attached_files'] = []
     files_data: dict[str, dict] = request_data.get('ДанныеФайлов', {})
     for file in files_data.values():
-        file_data: dict[str, str | dict] = {
-            'name': file.get('ПрикреплённыйФайл', placeholder),
-            'sign_date': file.get('ДатаПодписи', placeholder),
-            'signed_by': file.get('УстановившийПодпись', placeholder),
-            'attached_by': file.get('ПрикрепившийФайл', placeholder),
-            'sign_data': gather_sign_data(
-                file.get('ДанныеПодписи', {}), placeholder=placeholder
-            ),
+        file_data: dict = file.get('ДанныеФайла', {})
+        file_signs_data: list[dict] = [
+            gather_sign_data(sign_data) for sign_data in file.get('ДанныеПодписей', [])
+        ]
+        trans_file_data: dict[str, str | list[dict]]  = {
+            'name': file_data.get('ПрикреплённыйФайл', placeholder),
+            'attached_by': file_data.get('ПрикрепившийФайл', placeholder),
+            'signs_data': file_signs_data,
         }
-        data['attached_files'].append(file_data)
+        data['attached_files'].append(trans_file_data)
     if 'ДанныеВизСогласования' in request_data:
         data['approvement_data'] = {}
         for index, person in enumerate(request_data['ДанныеВизСогласования']):
