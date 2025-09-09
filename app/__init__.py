@@ -1,6 +1,8 @@
 ﻿import os
+import json
 import base64
 import logging
+import certifi
 from logging.handlers import RotatingFileHandler
 from dotenv import load_dotenv
 from urllib.parse import quote
@@ -143,22 +145,35 @@ def get_error_messages(error_code, lang):
     return messages[error_code].get(lang, 'en')
 
 
+map_doc_types: dict[str, str] = {}
+with open("./app/doc_types/doc_types.json", "r", encoding="utf-8") as doc_settings:
+    map_doc_types = json.load(doc_settings)
+
+
 @app.route('/', methods=['GET'])
 def get_doc():
     status_code: int = 200
-    doc_type = inc_req.args.get('type')
-    ref_type = inc_req.args.get('ref')
+    doc_type: str = inc_req.args.get('type', '1')
+    ref_type: str = inc_req.args.get('ref')
     preferred_language = get_user_language()[:2]
+    # Используем стандартный тип, других и не должно приходить.
+    map_doc_type: str = map_doc_types.get(doc_type, 'Справочник.ВнутренниеДокументы')
     if not doc_type or not ref_type:
         status_code = 400
         message = get_error_messages(status_code, preferred_language)
         raise CustomError(status_code, message, preferred_language, status_code)
-    cor_doc_type = quote(doc_type)
+    cor_doc_type = quote(map_doc_type)
     cor_ref_type = quote(ref_type)
     full_req_url = f'{req_base_url}?type={cor_doc_type}&ref={cor_ref_type}'
     app.logger.error(f'REQUEST_URL = {full_req_url}')
     try:
-        request = out_req('GET', full_req_url, headers=basic_headers, verify=False)
+        request = out_req(
+            'GET',
+            full_req_url,
+            headers=basic_headers,
+            verify=certifi.where(),
+            timeout=15,
+        )
     except ConnectionError as _:
         app.logger.error('Connection error', exc_info=True)
         status_code = 500
